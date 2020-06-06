@@ -68,6 +68,7 @@ class NeptuneCallback:
 
         self.exp.log_metric('run_score', trial.value)
         self.exp.log_metric('best_so_far_run_score', study.best_value)
+        self.exp.log_metric('best_so_far_trial', study.best_trial)
         self.exp.log_text('run_parameters', str(trial.params))
 
         if self.log_charts:
@@ -91,7 +92,8 @@ class NeptuneCallback:
 def log_study_info(study, experiment=None, log_charts=True, params=None):
     """Logs runs results and parameters to neptune.
 
-    Logs all hyperparameter optimization results to Neptune. Those include best score ('best_score' metric),
+    Logs all hyperparameter optimization results to Neptune. Those include the number of trials ('n_trials' property),
+    best trial ('best_trial' property), best score ('best_score' metric),
     best parameters ('best_parameters' property), the study object itself as artifact, and interactive optuna charts
     ('contour', 'parallel_coordinate', 'slice', 'optimization_history') as artifacts in 'charts' sub folder.
 
@@ -128,6 +130,8 @@ def log_study_info(study, experiment=None, log_charts=True, params=None):
 
     _exp.log_metric('best_score', study.best_value)
     _exp.set_property('best_parameters', study.best_params)
+    _exp.set_property('best_trial', study.best_trial)
+    _exp.set_property('n_trials', study.n_trials)
 
     if log_charts:
         log_chart(name='optimization_history', chart=vis.plot_optimization_history(study), experiment=_exp)
