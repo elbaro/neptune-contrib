@@ -68,7 +68,7 @@ class NeptuneCallback:
 
         self.exp.log_metric('run_score', trial.value)
         self.exp.log_metric('best_so_far_run_score', study.best_value)
-        self.exp.log_metric('best_so_far_trial', study.best_trial)
+        self.exp.log_metric('best_so_far_trial', study.best_trial.number)
         self.exp.log_text('run_parameters', str(trial.params))
 
         if self.log_charts:
