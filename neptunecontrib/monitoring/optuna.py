@@ -134,8 +134,8 @@ def log_study_info(study, experiment=None, log_charts=True, params=None):
 
     _exp.log_metric('best_score', study.best_value)
     _exp.set_property('best_parameters', study.best_params)
-    _exp.set_property('best_trial', study.best_trial)
-    _exp.set_property('n_trials', study.n_trials)
+    _exp.set_property('best_trial', study.best_trial.number)
+    _exp.set_property('n_trials', len(study.trials))
 
     if log_charts:
         log_chart(name='optimization_history', chart=vis.plot_optimization_history(study), experiment=_exp)
@@ -143,7 +143,7 @@ def log_study_info(study, experiment=None, log_charts=True, params=None):
         log_chart(name='parallel_coordinate', chart=vis.plot_parallel_coordinate(study, params=params), experiment=_exp)
         log_chart(name='slice', chart=vis.plot_slice(study, params=params), experiment=_exp)
 
-    pickle_and_log_artifact(study, 'study.pkl', experiment=_exp)
+    pickle_and_log_artiffact(study, 'study.pkl', experiment=_exp)
 
 
 def log_study(study, experiment=None, log_charts=True, params=None):
