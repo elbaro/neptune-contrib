@@ -71,9 +71,9 @@ class NeptuneCallback:
         self.exp.log_text('run_parameters', str(trial.params))
 
         if trial.number == study.best_trial.number:
-            self.exp.set_property('best_params', study.trial.params)
-            self.exp.set_property('best_trial', study.trial.number)
-            self.exp.set_property('best_score', study.trial.value)
+            self.exp.set_property('best_params', trial.params)
+            self.exp.set_property('best_trial', trial.number)
+            self.exp.set_property('best_score', trial.value)
 
         if self.log_charts:
             log_chart(name='optimization_history',
