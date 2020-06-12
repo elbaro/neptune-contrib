@@ -88,6 +88,9 @@ class NeptuneCallback:
             log_chart(name='slice',
                       chart=vis.plot_slice(study, params=self.params),
                       experiment=self.exp)
+            log_chart(name='param_importances',
+                      chart=vis.plot_param_importances(study, params=self.params),
+                      experiment=self.exp)
 
         if self.log_study:
             pickle_and_log_artifact(study, 'study.pkl', experiment=self.exp)
@@ -133,7 +136,7 @@ def log_study_info(study, experiment=None, log_charts=True, params=None):
     _exp = experiment if experiment else neptune
 
     _exp.log_metric('best_score', study.best_value)
-    _exp.set_property('best_parameters', study.best_params)
+    _exp.set_property('best_params', study.best_params)
     _exp.set_property('best_trial', study.best_trial.number)
     _exp.set_property('n_trials', len(study.trials))
 
@@ -142,8 +145,9 @@ def log_study_info(study, experiment=None, log_charts=True, params=None):
         log_chart(name='contour', chart=vis.plot_contour(study, params=params), experiment=_exp)
         log_chart(name='parallel_coordinate', chart=vis.plot_parallel_coordinate(study, params=params), experiment=_exp)
         log_chart(name='slice', chart=vis.plot_slice(study, params=params), experiment=_exp)
+        log_chart(name='param_importances', chart=vis.plot_param_importances(study, params=params), experiment=_exp)
 
-    pickle_and_log_artiffact(study, 'study.pkl', experiment=_exp)
+    pickle_and_log_artifact(study, 'study.pkl', experiment=_exp)
 
 
 def log_study(study, experiment=None, log_charts=True, params=None):
