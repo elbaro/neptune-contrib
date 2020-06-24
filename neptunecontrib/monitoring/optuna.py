@@ -69,6 +69,7 @@ class NeptuneCallback:
         self.exp.log_metric('run_score', trial.value)
         self.exp.log_metric('best_so_far_run_score', study.best_value)
         self.exp.log_text('run_parameters', str(trial.params))
+        self.exp.set_property('n_trials', len(study.trials))
 
         if trial.number == study.best_trial.number:
             self.exp.set_property('best_params', trial.params)
@@ -88,9 +89,11 @@ class NeptuneCallback:
             log_chart(name='slice',
                       chart=vis.plot_slice(study, params=self.params),
                       experiment=self.exp)
-            log_chart(name='param_importances',
-                      chart=vis.plot_param_importances(study, params=self.params),
-                      experiment=self.exp)
+            # requires optuna > 1.5.0
+            if hasattr(vis, 'plot_param_importances'):
+                log_chart(name='param_importances',
+                          chart=vis.plot_param_importances(study, params=self.params),
+                          experiment=self.exp)
 
         if self.log_study:
             pickle_and_log_artifact(study, 'study.pkl', experiment=self.exp)
@@ -145,7 +148,9 @@ def log_study_info(study, experiment=None, log_charts=True, params=None):
         log_chart(name='contour', chart=vis.plot_contour(study, params=params), experiment=_exp)
         log_chart(name='parallel_coordinate', chart=vis.plot_parallel_coordinate(study, params=params), experiment=_exp)
         log_chart(name='slice', chart=vis.plot_slice(study, params=params), experiment=_exp)
-        log_chart(name='param_importances', chart=vis.plot_param_importances(study, params=params), experiment=_exp)
+        # requires optuna > 1.5.0
+        if hasattr(vis, 'plot_param_importances'):
+            log_chart(name='param_importances', chart=vis.plot_param_importances(study, params=params), experiment=_exp)
 
     pickle_and_log_artifact(study, 'study.pkl', experiment=_exp)
 
