@@ -69,6 +69,12 @@ class NeptuneCallback:
         self.exp.log_metric('run_score', trial.value)
         self.exp.log_metric('best_so_far_run_score', study.best_value)
         self.exp.log_text('run_parameters', str(trial.params))
+        self.exp.set_property('n_trials', len(study.trials))
+
+        if trial.number == study.best_trial.number:
+            self.exp.set_property('best_params', trial.params)
+            self.exp.set_property('best_trial', trial.number)
+            self.exp.set_property('best_score', trial.value)
 
         if self.log_charts:
             log_chart(name='optimization_history',
@@ -83,6 +89,11 @@ class NeptuneCallback:
             log_chart(name='slice',
                       chart=vis.plot_slice(study, params=self.params),
                       experiment=self.exp)
+            # requires optuna > 1.5.0
+            if hasattr(vis, 'plot_param_importances'):
+                log_chart(name='param_importances',
+                          chart=vis.plot_param_importances(study, params=self.params),
+                          experiment=self.exp)
 
         if self.log_study:
             pickle_and_log_artifact(study, 'study.pkl', experiment=self.exp)
@@ -91,7 +102,8 @@ class NeptuneCallback:
 def log_study_info(study, experiment=None, log_charts=True, params=None):
     """Logs runs results and parameters to neptune.
 
-    Logs all hyperparameter optimization results to Neptune. Those include best score ('best_score' metric),
+    Logs all hyperparameter optimization results to Neptune. Those include the number of trials ('n_trials' property),
+    best trial ('best_trial' property), best score ('best_score' metric),
     best parameters ('best_parameters' property), the study object itself as artifact, and interactive optuna charts
     ('contour', 'parallel_coordinate', 'slice', 'optimization_history') as artifacts in 'charts' sub folder.
 
@@ -127,13 +139,18 @@ def log_study_info(study, experiment=None, log_charts=True, params=None):
     _exp = experiment if experiment else neptune
 
     _exp.log_metric('best_score', study.best_value)
-    _exp.set_property('best_parameters', study.best_params)
+    _exp.set_property('best_params', study.best_params)
+    _exp.set_property('best_trial', study.best_trial.number)
+    _exp.set_property('n_trials', len(study.trials))
 
     if log_charts:
         log_chart(name='optimization_history', chart=vis.plot_optimization_history(study), experiment=_exp)
         log_chart(name='contour', chart=vis.plot_contour(study, params=params), experiment=_exp)
         log_chart(name='parallel_coordinate', chart=vis.plot_parallel_coordinate(study, params=params), experiment=_exp)
         log_chart(name='slice', chart=vis.plot_slice(study, params=params), experiment=_exp)
+        # requires optuna > 1.5.0
+        if hasattr(vis, 'plot_param_importances'):
+            log_chart(name='param_importances', chart=vis.plot_param_importances(study, params=params), experiment=_exp)
 
     pickle_and_log_artifact(study, 'study.pkl', experiment=_exp)
 
